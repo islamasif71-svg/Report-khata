@@ -216,9 +216,153 @@
         .bg-green { background: #e8f5e9; color: var(--green); }
         .bg-red { background: #ffebee; color: var(--red); }
 
+        /* ═══════════════════════════════════════════
+           📱 MOBILE RESPONSIVE — শুধু layout পরিবর্তন
+           ═══════════════════════════════════════════ */
+
         @media (max-width: 768px) {
-            .ranking-section { grid-template-columns: 1fr; }
-            .date-picker-box { border-left: none; margin-top: 10px; }
+
+            /* Body & Container */
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            /* Header */
+            .header {
+                padding: 18px 12px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            }
+            .header h1 {
+                font-size: 18px;
+                letter-spacing: 0;
+            }
+            .header p {
+                font-size: 13px;
+            }
+
+            /* Backup bar */
+            .bk-bar {
+                padding: 8px 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            .bk-txt h5 { font-size: 12px; }
+            .bk-txt p  { font-size: 10px; }
+            .bk-bdg    { font-size: 10px; padding: 4px 10px; }
+
+            /* Toast - মোবাইলে বাম দিক থেকে */
+            #bk-toasts {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            .bk-toast {
+                min-width: unset;
+                width: 100%;
+            }
+
+            /* Chart box */
+            .chart-box {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            .chart-box h3 {
+                font-size: 15px;
+            }
+
+            /* Filter bar - বাটনগুলো ছোট ও সমান সারিতে */
+            .filter-bar {
+                padding: 10px;
+                gap: 8px;
+                margin-bottom: 15px;
+                justify-content: flex-start;
+            }
+            .btn-filter {
+                padding: 8px 12px;
+                font-size: 13px;
+                flex: 1;
+                min-width: 0;
+                text-align: center;
+            }
+            .date-picker-box {
+                border-left: none;
+                border-top: 1px solid #ccc;
+                margin-left: 0;
+                margin-top: 4px;
+                padding: 8px 0 0 0;
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .date-input {
+                flex: 1;
+                min-width: 0;
+                font-size: 14px;
+            }
+
+            /* Stats grid - ২ কলামে */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .card {
+                padding: 15px 10px;
+                border-radius: 10px;
+            }
+            .card h4 {
+                font-size: 11px;
+                letter-spacing: 0;
+            }
+            .card p {
+                font-size: 20px;
+                margin: 8px 0 0;
+            }
+            .card p[style*="font-size:10px"],
+            .card p[style*="font-size:12px"] {
+                font-size: 9px !important;
+            }
+
+            /* Ranking section - ১ কলামে */
+            .ranking-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .ranking-box {
+                padding: 15px;
+            }
+            .ranking-box h3 {
+                font-size: 16px;
+            }
+
+            /* Low stock box - span ঠিক করো */
+            .ranking-box[style*="grid-column"] {
+                grid-column: span 1 !important;
+                margin-top: 0 !important;
+            }
+
+            /* Table - ছোট স্ক্রিনে স্ক্রলযোগ্য */
+            .ranking-box {
+                overflow-x: auto;
+            }
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
+
+        /* খুব ছোট মোবাইল (≤ 380px) */
+        @media (max-width: 380px) {
+            .header h1 { font-size: 15px; }
+            .btn-filter { padding: 7px 8px; font-size: 12px; }
+            .card p { font-size: 17px; }
+            .stats-grid { gap: 8px; }
         }
 
         .bk-bar {
@@ -375,20 +519,45 @@
 
         <div class="stats-grid">
             <div class="card">
-                <h4>মোট বিক্রি (Total)</h4>
+                <h4>মোট বিক্রি (Revenue)</h4>
                 <p id="sumTotal">0/-</p>
             </div>
             <div class="card cash">
-                <h4>নগদ জমা (Cash)</h4>
+                <h4>নগদ আদায় (Cash)</h4>
                 <p id="sumCash" style="color: var(--green);">0/-</p>
             </div>
             <div class="card due">
                 <h4>মোট বাকি (Due)</h4>
                 <p id="sumDue" style="color: var(--red);">0/-</p>
             </div>
+            <div class="card">
+                <h4>ক্রয় মূল্য (Cost Price)</h4>
+                <p id="sumCost" style="color: #f57f17;">0/-</p>
+            </div>
+            <div class="card cash" style="border-top-color: #7b1fa2;">
+                <h4>বাকি আদায় (Collections)</h4>
+                <p id="sumCollected" style="color: #7b1fa2;">0/-</p>
+            </div>
+            <div class="card cash" style="border-top-color: #00897b;">
+                <h4>মোট নগদ প্রাপ্তি</h4>
+                <p id="sumTotalCash" style="color: #00897b;">0/-</p>
+            </div>
             <div class="card profit">
-                <h4>প্রকৃত লাভ (Profit)</h4>
+                <h4>মোট লাভ (Accrual Profit)</h4>
+                <p id="sumGrossProfit" style="color: var(--green);">0/-</p>
+                <p style="font-size:12px; color:#aaa; margin:8px 0 0;">
+                    লাভের হার: <b id="profitMargin" style="color:var(--green);">0%</b>
+                </p>
+                <p style="font-size:10px; color:#bbb; margin:4px 0 0;">
+                    💡 বিক্রয় − ক্রয় − ছাড় (বাকি সহ)
+                </p>
+            </div>
+            <div class="card" style="border-top-color: var(--blue);">
+                <h4>নগদ লাভ (Cash Profit)</h4>
                 <p id="sumProfit" style="color: var(--blue);">0/-</p>
+                <p style="font-size:10px; color:#bbb; margin:8px 0 0;">
+                    💡 মোট লাভ × (নগদ ÷ মোট বিক্রয়)
+                </p>
             </div>
         </div>
 
@@ -433,13 +602,14 @@
 
         const SHEET_URL = "https://script.google.com/macros/s/AKfycbwv6fWSguLWk4h1p-BnbZDyiZnJ05gJGeDLk2-EpjcCEsY_geMw2JlTjARWn98YZkBWaw/exec";
 
+        // ─── UI হেলপার ───────────────────────────────────────────────────────
         function bkSet(type, ico, title, desc, bdg) {
             const bar = document.getElementById('bkBar');
             bar.className = 'bk-bar ' + (type || '');
-            document.getElementById('bkIco').textContent = ico;
+            document.getElementById('bkIco').textContent  = ico;
             document.getElementById('bkTitle').textContent = title;
-            document.getElementById('bkDesc').textContent = desc;
-            document.getElementById('bkBdg').textContent = bdg;
+            document.getElementById('bkDesc').textContent  = desc;
+            document.getElementById('bkBdg').textContent   = bdg;
         }
 
         function bkToast(type, ico, title, desc) {
@@ -454,220 +624,276 @@
             }, 3000);
         }
 
+        // ─── তারিখ হেলপার ────────────────────────────────────────────────────
+        // ✅ FIX: local time দিয়ে YYYY-MM-DD বানাও — UTC parse এড়াও
+        function formatDate(d) {
+            const y  = d.getFullYear();
+            const m  = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        }
+
+        // range অনুযায়ী সব target date-এর array বানাও (YYYY-MM-DD)
+        function buildDateRange(range) {
+            const now      = new Date();
+            const todayStr = formatDate(now);
+
+            if (range === 'daily') {
+                return [todayStr];
+            }
+            if (range === 'weekly') {
+                const dates = [];
+                for (let i = 0; i <= 6; i++) {
+                    const d = new Date(now);
+                    d.setDate(d.getDate() - i);
+                    dates.push(formatDate(d));
+                }
+                return dates;
+            }
+            if (range === 'monthly') {
+                const dates = [];
+                const year  = now.getFullYear();
+                const month = now.getMonth() + 1;
+                const days  = new Date(year, month, 0).getDate();
+                for (let i = 1; i <= days; i++) {
+                    const ds = `${year}-${String(month).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                    if (ds <= todayStr) dates.push(ds);
+                }
+                return dates;
+            }
+            if (range === 'yearly') {
+                // ✅ এই বছরের ১ জানুয়ারি থেকে আজ পর্যন্ত সব তারিখ
+                const dates = [];
+                const year  = now.getFullYear();
+                for (let d = new Date(year, 0, 1); formatDate(d) <= todayStr; d.setDate(d.getDate() + 1)) {
+                    dates.push(formatDate(new Date(d)));
+                }
+                return dates;
+            }
+            return [];
+        }
+
+        // ─── Sheet / Backup fetch ─────────────────────────────────────────────
         async function getFromSheet(date) {
             try {
-                const res = await fetch(`${SHEET_URL}?type=invoices_by_date&query=${date}`);
+                const res  = await fetch(`${SHEET_URL}?type=invoices_by_date&query=${date}`);
                 const json = await res.json();
                 if (json.status === 'ok' && json.data) return json.data;
             } catch (e) {
-                console.log('Sheet fetch:', e);
+                console.log('Sheet fetch error:', e);
             }
             return {};
         }
 
         async function getInventoryFromSheet() {
             try {
-                const res = await fetch(`${SHEET_URL}?type=inventory`);
+                const res  = await fetch(`${SHEET_URL}?type=inventory`);
                 const json = await res.json();
                 if (json.status === 'ok' && json.data) return json.data;
             } catch (e) {
-                console.log('Sheet inventory fetch:', e);
+                console.log('Sheet inventory error:', e);
             }
             return {};
         }
 
-        function loadAnalytics(range, btnElement) {
+        // ─── মূল লোড ফাংশন ───────────────────────────────────────────────────
+        // ✅ FIX: async/await + .once() — প্রতিবার ক্লিকে নতুন .on() listener জমে না
+        async function loadAnalytics(range, btnElement) {
             if (btnElement) {
                 document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
                 btnElement.classList.add('active');
             }
 
-            const now = new Date();
+            const now        = new Date();
+            const yearStr    = String(now.getFullYear());
             const customDate = document.getElementById('customDateInput').value;
 
-            bkSet('', '☁️', 'Firebase থেকে ডেটা লোড হচ্ছে', 'ডেটা Firebase থেকে নেওয়া হচ্ছে', 'লোড হচ্ছে...');
+            bkSet('reading', '☁️', 'Firebase থেকে ডেটা লোড হচ্ছে', 'অনুগ্রহ করে অপেক্ষা করুন...', 'লোড হচ্ছে...');
 
-            db.ref('inventory').once('value', async invSnap => {
-                let inventoryData = invSnap.val() || {};
-                updateLowStock(inventoryData);
+            // ── ১. Inventory নাও (Firebase → ব্যর্থ হলে Sheet) ──
+            let inventoryData = {};
+            try {
+                const invSnap = await db.ref('inventory').once('value');
+                inventoryData = invSnap.val() || {};
+            } catch(e) { console.log('inventory fetch error:', e); }
+            updateLowStock(inventoryData);
 
-                if (range === 'custom' && customDate) {
-                    db.ref('invoices').orderByChild('date').equalTo(customDate).once('value', async snap => {
-                        let invoices = snap.val();
+            // ── ২. Date range নির্ধারণ ──
+            let targetDates = [];
+            if (range === 'custom') {
+                if (!customDate) { clearStats(); return; }
+                targetDates = [customDate];
+            } else {
+                targetDates = buildDateRange(range);
+            }
+            const targetSet = new Set(targetDates);
 
-                        if (!invoices || Object.keys(invoices).length === 0) {
-                            bkSet('reading', '📦', 'ব্যাকআপ থেকে খোঁজা হচ্ছে...', customDate + ' তারিখের ডেটা Sheet-এ খোঁজা হচ্ছে', 'খোঁজা হচ্ছে...');
-                            invoices = await getFromSheet(customDate);
+            // ── ৩. Firebase থেকে সব invoices নাও (.once() ব্যবহার করো) ──
+            let allFirebase = {};
+            try {
+                const snap = await db.ref('invoices').once('value');
+                allFirebase = snap.val() || {};
+            } catch(e) { console.log('Firebase invoices error:', e); }
 
-                            if (invoices && Object.keys(invoices).length > 0) {
-                                if (Object.keys(inventoryData).length === 0) {
-                                    inventoryData = await getInventoryFromSheet();
-                                }
-                                bkSet('reading', '📦', 'ব্যাকআপ থেকে দেখানো হচ্ছে', customDate + ' — Firebase-এ নেই, Sheet থেকে নেওয়া হয়েছে', 'ব্যাকআপ ডেটা');
-                                bkToast('reading', '📦', 'পুরনো ডেটা পাওয়া গেছে', customDate + ' তারিখের ডেটা Google Sheet থেকে দেখানো হচ্ছে');
-                                processInvoices(invoices, inventoryData);
-                            } else {
-                                bkSet('', '☁️', 'কোনো ডেটা পাওয়া যায়নি', customDate + ' তারিখের কোনো ডেটা নেই', 'খালি');
-                                clearStats();
-                            }
-                        } else {
-                            bkSet('', '☁️', 'Firebase থেকে দেখানো হচ্ছে', customDate + ' তারিখের ডেটা Firebase থেকে এসেছে', 'Firebase ✓');
-                            processInvoices(invoices, inventoryData);
-                        }
+            // ── ৪. Range অনুযায়ী Firebase invoice ফিল্টার করো ──
+            // ✅ FIX: string comparison — new Date() UTC parse বাগ এড়াও
+            let filteredFirebase = {};
+            for (let id in allFirebase) {
+                const inv = allFirebase[id];
+                if (!inv.date) continue;
+                if (targetSet.has(inv.date)) filteredFirebase[id] = inv;
+            }
+
+            // ── ৫. Firebase-এ কোন তারিখের ডেটা নেই খুঁজে বের করো ──
+            const fbDates = new Set();
+            for (let id in filteredFirebase) {
+                if (filteredFirebase[id].date) fbDates.add(filteredFirebase[id].date);
+            }
+            const missingDates = targetDates.filter(d => !fbDates.has(d));
+
+            // ── ৬. Missing তারিখগুলো Sheet থেকে নাও (parallel — fast) ──
+            // ✅ FIX: yearly-তেও কাজ করবে, sequential নয় — একসাথে সব request
+            let sheetInvoices = {};
+            if (missingDates.length > 0) {
+                const label = range === 'yearly'
+                    ? `এই বছরের পুরনো ডেটা ব্যাকআপ থেকে আনা হচ্ছে...`
+                    : `${missingDates.length}টি তারিখ Google Sheet থেকে আনা হচ্ছে`;
+                bkSet('reading', '📦', 'ব্যাকআপ খোঁজা হচ্ছে...', label, 'খোঁজা হচ্ছে...');
+
+                // ৩০টা করে ভাগ করে parallel fetch (rate limit এড়াতে)
+                const CHUNK = 30;
+                for (let i = 0; i < missingDates.length; i += CHUNK) {
+                    const chunk   = missingDates.slice(i, i + CHUNK);
+                    const results = await Promise.all(chunk.map(d => getFromSheet(d)));
+                    results.forEach(sd => {
+                        if (sd && Object.keys(sd).length > 0) Object.assign(sheetInvoices, sd);
                     });
-                    return;
-                }
-
-                db.ref('invoices').on('value', snap => {
-                    const invoices = snap.val();
-                    let total = 0, cash = 0, due = 0, profit = 0;
-                    let productStats = {};
-                    let salesByDate = {};
-
-                    for (let id in invoices) {
-                        const inv = invoices[id];
-                        const invDate = new Date(inv.date);
-
-                        let match = false;
-                        if (range === 'daily') match = invDate.toDateString() === now.toDateString();
-                        else if (range === 'weekly') match = (now - invDate) / (1000 * 60 * 60 * 24) <= 7;
-                        else if (range === 'monthly') match = invDate.getMonth() === now.getMonth() && invDate.getFullYear() === now.getFullYear();
-                        else if (range === 'yearly') match = invDate.getFullYear() === now.getFullYear();
-
-                        if (match) {
-                            let currentInvTotal = parseFloat(inv.total || 0);
-                            let currentInvPaid = parseFloat(inv.paid || 0);
-                            let currentInvDue = parseFloat(inv.due || 0);
-                            let currentInvDiscount = parseFloat(inv.discAmt || inv.discount || 0);
-
-                            total += currentInvTotal;
-                            cash += currentInvPaid;
-                            due += currentInvDue;
-                            salesByDate[inv.date] = (salesByDate[inv.date] || 0) + currentInvTotal;
-
-                            if (inv.items) {
-                                let paidRatio = 1;
-                                if (currentInvTotal > 0) {
-                                    paidRatio = currentInvPaid / currentInvTotal;
-                                    if (paidRatio > 1) paidRatio = 1;
-                                }
-                                let totalInvGrossProfit = 0;
-                                inv.items.forEach(item => {
-                                    let qty = parseInt(item.qty) || 0;
-                                    let originalName = item.name || "";
-                                    productStats[originalName] = (productStats[originalName] || 0) + qty;
-                                    let isReturn = originalName.includes("ফেরত");
-                                    let costPrice = 0;
-                                    let prodId = item.id;
-                                    if (!prodId) {
-                                        let idMatch = originalName.match(/\(([^)]+)\)/);
-                                        if (idMatch) prodId = idMatch[1].trim();
-                                    }
-                                    if (prodId && inventoryData[prodId]) {
-                                        costPrice = parseFloat(inventoryData[prodId].cost || 0);
-                                    } else {
-                                        let searchName = originalName.replace(/\([^)]*\)/g, "").replace(/মাল ফেরত|ফেরত/g, "").trim();
-                                        for (let key in inventoryData) {
-                                            if (inventoryData[key].name === searchName) {
-                                                costPrice = parseFloat(inventoryData[key].cost || 0);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    let itemPrice = parseFloat(item.price || 0);
-                                    let itemProfit = costPrice > 0 ? (itemPrice - costPrice) * qty : (itemPrice * 0.40) * qty;
-                                    if (isReturn) totalInvGrossProfit -= Math.abs(itemProfit);
-                                    else totalInvGrossProfit += itemProfit;
-                                });
-                                profit += (totalInvGrossProfit - currentInvDiscount) * paidRatio;
-                            }
-                        }
-                    }
-
-                    document.getElementById('sumTotal').innerText = Math.round(total) + "/-";
-                    document.getElementById('sumCash').innerText = Math.round(cash) + "/-";
-                    document.getElementById('sumDue').innerText = Math.round(due) + "/-";
-                    document.getElementById('sumProfit').innerText = Math.round(profit) + "/-";
-                    updateRankingTables(productStats);
-                    const sortedDates = Object.keys(salesByDate).sort();
-                    const sortedValues = sortedDates.map(d => salesByDate[d]);
-                    updateChart(sortedDates, sortedValues);
-
-                    bkSet('', '☁️', 'Firebase থেকে দেখানো হচ্ছে', 'সর্বশেষ ডেটা Firebase থেকে এসেছে', 'Firebase ✓');
-                });
-            });
-        }
-
-        function processInvoices(invoices, inventoryData) {
-            let total = 0, cash = 0, due = 0, profit = 0;
-            let productStats = {};
-            let salesByDate = {};
-
-            for (let id in invoices) {
-                const inv = invoices[id];
-                let currentInvTotal = parseFloat(inv.total || 0);
-                let currentInvPaid = parseFloat(inv.paid || 0);
-                let currentInvDue = parseFloat(inv.due || 0);
-                let currentInvDiscount = parseFloat(inv.discAmt || inv.discount || 0);
-
-                total += currentInvTotal;
-                cash += currentInvPaid;
-                due += currentInvDue;
-                salesByDate[inv.date] = (salesByDate[inv.date] || 0) + currentInvTotal;
-
-                if (inv.items) {
-                    let paidRatio = 1;
-                    if (currentInvTotal > 0) {
-                        paidRatio = currentInvPaid / currentInvTotal;
-                        if (paidRatio > 1) paidRatio = 1;
-                    }
-                    let totalInvGrossProfit = 0;
-                    inv.items.forEach(item => {
-                        let qty = parseInt(item.qty) || 0;
-                        let originalName = item.name || "";
-                        productStats[originalName] = (productStats[originalName] || 0) + qty;
-                        let isReturn = originalName.includes("ফেরত");
-                        let costPrice = 0;
-                        let prodId = item.id;
-                        if (!prodId) {
-                            let idMatch = originalName.match(/\(([^)]+)\)/);
-                            if (idMatch) prodId = idMatch[1].trim();
-                        }
-                        if (prodId && inventoryData[prodId]) {
-                            costPrice = parseFloat(inventoryData[prodId].cost || 0);
-                        } else {
-                            let searchName = originalName.replace(/\([^)]*\)/g, "").replace(/মাল ফেরত|ফেরত/g, "").trim();
-                            for (let key in inventoryData) {
-                                if (inventoryData[key].name === searchName) {
-                                    costPrice = parseFloat(inventoryData[key].cost || 0);
-                                    break;
-                                }
-                            }
-                        }
-                        let itemPrice = parseFloat(item.price || 0);
-                        let itemProfit = costPrice > 0 ? (itemPrice - costPrice) * qty : (itemPrice * 0.40) * qty;
-                        if (isReturn) totalInvGrossProfit -= Math.abs(itemProfit);
-                        else totalInvGrossProfit += itemProfit;
-                    });
-                    profit += (totalInvGrossProfit - currentInvDiscount) * paidRatio;
                 }
             }
 
-            document.getElementById('sumTotal').innerText = Math.round(total) + "/-";
-            document.getElementById('sumCash').innerText = Math.round(cash) + "/-";
-            document.getElementById('sumDue').innerText = Math.round(due) + "/-";
-            document.getElementById('sumProfit').innerText = Math.round(profit) + "/-";
+            // ── ৭. Firebase + Sheet merge করো (Firebase-এর ডেটা priority পাবে) ──
+            const merged = Object.assign({}, sheetInvoices, filteredFirebase);
+
+            // ── ৮. কোনো ডেটা না থাকলে ──
+            if (Object.keys(merged).length === 0) {
+                bkSet('', '☁️', 'কোনো ডেটা পাওয়া যায়নি', 'এই সময়ের জন্য কোনো বিক্রয় তথ্য নেই', 'খালি');
+                clearStats();
+                return;
+            }
+
+            // ── ৯. Inventory না থাকলে Sheet থেকে নাও ──
+            if (Object.keys(inventoryData).length === 0 && Object.keys(sheetInvoices).length > 0) {
+                inventoryData = await getInventoryFromSheet();
+            }
+
+            // ── ১০. Status bar আপডেট করো ──
+            const hasFB  = Object.keys(filteredFirebase).length > 0;
+            const hasSH  = Object.keys(sheetInvoices).length   > 0;
+            if (hasFB && hasSH) {
+                bkSet('reading', '🔀', 'Firebase + ব্যাকআপ মার্জ করা হয়েছে',
+                    'দুটো উৎস একত্রিত — সম্পূর্ণ ডেটা দেখানো হচ্ছে', 'মার্জড ✓');
+                bkToast('reading', '🔀', 'মার্জড ডেটা', 'Firebase ও ব্যাকআপ Sheet দুটো থেকেই ডেটা নেওয়া হয়েছে');
+            } else if (hasSH) {
+                bkSet('reading', '📦', 'ব্যাকআপ থেকে দেখানো হচ্ছে',
+                    'Firebase-এ নেই, Google Sheet থেকে নেওয়া হয়েছে', 'ব্যাকআপ ডেটা');
+                bkToast('reading', '📦', 'পুরনো ডেটা পাওয়া গেছে', 'Google Sheet থেকে দেখানো হচ্ছে');
+            } else {
+                bkSet('', '☁️', 'Firebase থেকে দেখানো হচ্ছে', 'সর্বশেষ ডেটা Firebase থেকে এসেছে', 'Firebase ✓');
+            }
+
+            // ── ১১. Merged data process করো ──
+            processInvoices(merged, inventoryData);
+        }
+
+        // ─── Invoice প্রসেস ও সংখ্যা দেখানো ─────────────────────────────────
+        function processInvoices(invoices, inventoryData) {
+            let total = 0, cash = 0, due = 0;
+            let costAmt = 0, grossProfit = 0, cashProfit = 0;
+            let productStats = {}, salesByDate = {};
+            const invMap = {};
+            for (let id in invoices) invMap[invoices[id].id || id] = invoices[id];
+
+            for (let id in invoices) {
+                const inv = invoices[id];
+                if (inv.source === 'manual_baki' || inv.source === 'payment_baki') continue;
+                const invTotal    = parseFloat(inv.total    || 0);
+                const invPaid     = parseFloat(inv.paid     || 0);
+                const invDue      = parseFloat(inv.due      || 0);
+                const invDiscount = parseFloat(inv.discAmt  || inv.discount || 0);
+                total += invTotal; cash += invPaid; due += invDue;
+                salesByDate[inv.date] = (salesByDate[inv.date] || 0) + invTotal;
+                if (inv.items) {
+                    let invGrossProfit = 0, invCostAmt = 0;
+                    inv.items.forEach(item => {
+                        const qty = parseInt(item.qty)||0, name = item.name||'';
+                        productStats[name] = (productStats[name]||0) + qty;
+                        const isReturn = name.includes('ফেরত');
+                        let cp = 0, pid = item.id;
+                        if (!pid) { const m = name.match(/\(([^)]+)\)/); if(m) pid=m[1].trim(); }
+                        if (pid && inventoryData[pid]) cp = parseFloat(inventoryData[pid].cost||0);
+                        else {
+                            const sn = name.replace(/\([^)]*\)/g,'').replace(/মাল ফেরত|ফেরত/g,'').trim();
+                            for (let k in inventoryData) { if(inventoryData[k].name===sn){cp=parseFloat(inventoryData[k].cost||0);break;} }
+                        }
+                        const price = parseFloat(item.price||0);
+                        const ic = cp>0?cp*qty:price*0.60*qty, ip = cp>0?(price-cp)*qty:price*0.40*qty;
+                        if (isReturn) { invCostAmt-=Math.abs(ic); invGrossProfit-=Math.abs(ip); }
+                        else          { invCostAmt+=ic;             invGrossProfit+=ip; }
+                    });
+                    invGrossProfit -= invDiscount;
+                    costAmt += invCostAmt; grossProfit += invGrossProfit;
+                    const netRev = Math.max(1, invTotal - invDiscount);
+                    cashProfit  += invPaid * (invGrossProfit / netRev);
+                }
+            }
+
+            // payment_baki (বাকি আদায়)
+            let totalCollected = 0;
+            for (let id in invoices) {
+                const inv = invoices[id];
+                if (inv.source !== 'payment_baki') continue;
+                const collected = parseFloat(inv.paid||inv.total||0);
+                totalCollected += collected; cash += collected;
+                let payProfit = collected * 0.40;
+                if (inv.appliedTo && Array.isArray(inv.appliedTo) && inv.appliedTo.length > 0) {
+                    let cp2=0, ct2=0;
+                    inv.appliedTo.forEach(a => {
+                        const orig = invMap[a.memoId]||invMap[String(a.memoId)];
+                        if (!orig||!orig.total) return;
+                        const od=parseFloat(orig.discAmt||orig.discount||0), onr=Math.max(1,parseFloat(orig.total)-od);
+                        let op=0;
+                        if(orig.items){ orig.items.forEach(item=>{ const q=parseInt(item.qty)||0,pr=parseFloat(item.price||0); let c=0,pi=item.id; if(!pi){const m2=(item.name||'').match(/\(([^)]+)\)/);if(m2)pi=m2[1].trim();} if(pi&&inventoryData[pi])c=parseFloat(inventoryData[pi].cost||0); op+=c>0?(pr-c)*q:pr*0.40*q; }); op-=od; }
+                        cp2+=(a.amount||0)*(op/onr); ct2+=(a.amount||0);
+                    });
+                    if (ct2>0) payProfit = cp2;
+                }
+                cashProfit += payProfit;
+            }
+
+            const marginPct = total > 0 ? Math.round(grossProfit/total*100) : 0;
+            document.getElementById('sumTotal').innerText     = Math.round(total)          + "/-";
+            document.getElementById('sumCash').innerText      = Math.round(cash - totalCollected) + "/-";
+            document.getElementById('sumDue').innerText       = Math.round(due)            + "/-";
+            document.getElementById('sumCost').innerText      = Math.round(costAmt)        + "/-";
+            document.getElementById('sumCollected').innerText = Math.round(totalCollected) + "/-";
+            document.getElementById('sumTotalCash').innerText = Math.round(cash)           + "/-";
+            document.getElementById('sumGrossProfit').innerText = Math.round(grossProfit)  + "/-";
+            document.getElementById('sumGrossProfit').style.color = grossProfit >= 0 ? 'var(--green)' : 'var(--red)';
+            document.getElementById('sumProfit').innerText    = Math.round(cashProfit)     + "/-";
+            document.getElementById('profitMargin').innerText = marginPct + "%";
+            document.getElementById('profitMargin').style.color = marginPct>=20?'var(--green)':marginPct>=10?'#f57f17':'var(--red)';
             updateRankingTables(productStats);
-            const sortedDates = Object.keys(salesByDate).sort();
-            const sortedValues = sortedDates.map(d => salesByDate[d]);
-            updateChart(sortedDates, sortedValues);
+            const sd = Object.keys(salesByDate).sort();
+            updateChart(sd, sd.map(d=>salesByDate[d]));
         }
 
         function clearStats() {
-            document.getElementById('sumTotal').innerText = "0/-";
-            document.getElementById('sumCash').innerText = "0/-";
-            document.getElementById('sumDue').innerText = "0/-";
+            ['sumTotal','sumCash','sumDue','sumCost','sumCollected','sumTotalCash'].forEach(id=>{
+                document.getElementById(id).innerText = "0/-";
+            });
+            document.getElementById('sumGrossProfit').innerText = "0/-";
             document.getElementById('sumProfit').innerText = "0/-";
+            document.getElementById('profitMargin').innerText = "0%";
             updateRankingTables({});
             updateChart([], []);
         }
