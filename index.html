@@ -728,10 +728,18 @@
             }
             const targetSet = new Set(targetDates);
 
-            // ── ৩. Firebase থেকে সব invoices নাও (.once() ব্যবহার করো) ──
+            // ── ৩. Firebase থেকে শুধু প্রয়োজনীয় তারিখের invoices আনো ──
+            // ✅ FIX: সব invoice লোড না করে date range দিয়ে filter — Bandwidth সাশ্রয়
             let allFirebase = {};
             try {
-                const snap = await db.ref('invoices').once('value');
+                const sortedDates = [...targetDates].sort();
+                const minDate = sortedDates[0];
+                const maxDate = sortedDates[sortedDates.length - 1];
+                const snap = await db.ref('invoices')
+                    .orderByChild('date')
+                    .startAt(minDate)
+                    .endAt(maxDate)
+                    .once('value');
                 allFirebase = snap.val() || {};
             } catch(e) { console.log('Firebase invoices error:', e); }
 
@@ -801,17 +809,46 @@
                 bkSet('', '☁️', 'Firebase থেকে দেখানো হচ্ছে', 'সর্বশেষ ডেটা Firebase থেকে এসেছে', 'Firebase ✓');
             }
 
-            // ── ১১. Merged data process করো ──
-            processInvoices(merged, inventoryData);
+            // ── ১১. payment_baki-র referenced original invoices আনো (সঠিক লাভ হিসাবের জন্য) ──
+            // আলাদা রাখব — sales total-এ গণনা হবে না, শুধু লাভ হিসাবে ব্যবহার হবে
+            const existingIds = new Set(Object.values(merged).map(i => String(i.id || '')));
+            const missingOrigIds = new Set();
+            for (let id in merged) {
+                const inv = merged[id];
+                if (inv.source !== 'payment_baki') continue;
+                if (!inv.appliedTo || !Array.isArray(inv.appliedTo)) continue;
+                inv.appliedTo.forEach(a => {
+                    const mid = String(a.memoId || '');
+                    if (mid && !existingIds.has(mid)) missingOrigIds.add(mid);
+                });
+            }
+            const refInvoices = {}; // শুধু লাভ হিসাবের জন্য — sales-এ গণনা হবে না
+            if (missingOrigIds.size > 0) {
+                const origFetches = [...missingOrigIds].map(mid =>
+                    db.ref('invoices/' + mid).once('value')
+                        .then(s => s.exists() ? [mid, s.val()] : null)
+                        .catch(() => null)
+                );
+                const origResults = await Promise.all(origFetches);
+                origResults.forEach(r => {
+                    if (r) { const [mid, data] = r; refInvoices[String(data.id || mid)] = data; }
+                });
+            }
+
+            // ── ১২. Merged data process করো ──
+            processInvoices(merged, inventoryData, refInvoices);
         }
 
         // ─── Invoice প্রসেস ও সংখ্যা দেখানো ─────────────────────────────────
-        function processInvoices(invoices, inventoryData) {
+        function processInvoices(invoices, inventoryData, refInvoices = {}) {
             let total = 0, cash = 0, due = 0;
             let costAmt = 0, grossProfit = 0, cashProfit = 0;
             let productStats = {}, salesByDate = {};
             const invMap = {};
+            // merged invoices — sales-এ গণনা হবে
             for (let id in invoices) invMap[invoices[id].id || id] = invoices[id];
+            // reference invoices — শুধু লাভ হিসাবে, sales-এ গণনা হবে না
+            for (let id in refInvoices) invMap[refInvoices[id].id || id] = refInvoices[id];
 
             for (let id in invoices) {
                 const inv = invoices[id];
