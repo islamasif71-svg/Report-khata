@@ -527,6 +527,55 @@
             .health-grid { grid-template-columns: 1fr; }
         }
 
+        /* ── তুলনামূলক বিশ্লেষণ ── */
+        .compare-section {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+        .compare-section h3 { margin: 0 0 16px 0; font-size: 18px; color: var(--dark); }
+        .cmp-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .cmp-btn {
+            padding: 9px 16px; border: 2px solid var(--blue);
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+            font-size: 13px; background: white; color: var(--blue);
+            transition: 0.2s; flex: 1; min-width: 120px; text-align: center;
+        }
+        .cmp-btn.active { background: var(--blue); color: white; }
+        .cmp-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px; border-radius: 10px;
+            margin-bottom: 8px; background: #f8f9fa;
+            border-left: 4px solid #e0e0e0;
+        }
+        .cmp-icon-label { flex: 2; font-size: 13px; font-weight: 600; color: #444; }
+        .cmp-val { flex: 1.5; text-align: right; font-size: 14px; font-weight: 700; }
+        .cmp-val.curr { color: var(--blue); }
+        .cmp-val.prev { color: #999; }
+        .cmp-change { flex: 1; text-align: right; font-size: 13px; }
+        .cmp-header-row {
+            display: flex; gap: 8px; padding: 6px 12px;
+            font-size: 12px; font-weight: 700; color: #888; margin-bottom: 4px;
+        }
+
+        /* Dark mode for compare */
+        body.dark-mode .compare-section { background: #1c2128; border-color: #30363d; }
+        body.dark-mode .compare-section h3 { color: #e6edf3; }
+        body.dark-mode .cmp-btn { background: #1c2128; color: #58a6ff; border-color: #58a6ff; }
+        body.dark-mode .cmp-btn.active { background: #58a6ff; color: #0d1117; }
+        body.dark-mode .cmp-row { background: #21262d; }
+        body.dark-mode .cmp-icon-label { color: #c9d1d9; }
+
+        @media (max-width: 768px) {
+            .compare-section { padding: 15px; }
+            .cmp-btn { font-size: 12px; padding: 8px 10px; }
+            .cmp-val { font-size: 13px; }
+            .cmp-icon-label { font-size: 12px; }
+        }
+
         /* ── Print Styles ── */
         @media print {
             body { background: white !important; padding: 0; }
@@ -816,6 +865,33 @@
                 <!-- JS দিয়ে পূরণ হবে -->
             </div>
         </div>
+
+        <!-- ══ তুলনামূলক বিশ্লেষণ ══ -->
+        <div class="compare-section">
+            <h3>📊 তুলনামূলক বিশ্লেষণ</h3>
+            <div class="cmp-btn-row">
+                <button class="cmp-btn active" id="cmpBtn-day"   onclick="loadComparison('day')">📅 আজ vs গতকাল</button>
+                <button class="cmp-btn"         id="cmpBtn-week"  onclick="loadComparison('week')">📆 এই সপ্তাহ vs গত সপ্তাহ</button>
+                <button class="cmp-btn"         id="cmpBtn-month" onclick="loadComparison('month')">🗓️ এই মাস vs গত মাস</button>
+                <button class="cmp-btn"         id="cmpBtn-year"  onclick="loadComparison('year')">📈 এই বছর vs গত বছর</button>
+            </div>
+            <div id="compareResultBox">
+                <p style="text-align:center;color:#aaa;padding:20px;">⏳ লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+        <!-- ══ সাপ্তাহিক বিক্রয় প্যাটার্ন ══ -->
+        <div class="chart-box" style="margin-bottom:30px;">
+            <h3 style="margin-top:0;font-size:18px;">📅 সাপ্তাহিক বিক্রয় প্যাটার্ন <span style="font-size:12px;color:#aaa;font-weight:normal;">(গত ৪ সপ্তাহ)</span></h3>
+            <canvas id="weekdayChart" height="100"></canvas>
+        </div>
+
+        <!-- ══ মাসভিত্তিক গ্রোথ ট্র্যাকার ══ -->
+        <div class="chart-box" style="margin-bottom:30px;">
+            <h3 style="margin-top:0;font-size:18px;">📈 মাসভিত্তিক গ্রোথ ট্র্যাকার <span style="font-size:12px;color:#aaa;font-weight:normal;">(এই বছর)</span></h3>
+            <canvas id="monthlyGrowthChart" height="100"></canvas>
+        </div>
+
     </div>
 
     <script>
@@ -1122,14 +1198,17 @@
                 customerStats[custKey].total += invTotal;
                 customerStats[custKey].paid  += invPaid;
                 customerStats[custKey].due   += invDue;
-                customerStats[custKey].count++;
+                // ✅ FIX: ফেরত মেমো ক্রেতার কেনার সংখ্যায় গণনা হবে না
+                if (invTotal >= 0) customerStats[custKey].count++;
 
                 const seller = (inv.seller || 'অজানা').trim();
                 if (!sellerStats[seller]) sellerStats[seller] = { count: 0, total: 0, paid: 0 };
-                sellerStats[seller].count++;
+                // ✅ FIX: ফেরত মেমো বিক্রেতার invoice count-এ গণনা হবে না
+                if (invTotal >= 0) sellerStats[seller].count++;
                 sellerStats[seller].total += invTotal;
                 sellerStats[seller].paid  += invPaid;
-                invoiceCount++;
+                // ✅ FIX: ফেরত মেমো মোট বিলের সংখ্যায় গণনা হবে না (গড় বিলও ঠিক হবে)
+                if (invTotal >= 0) invoiceCount++;
                 if (invTotal > highestInvoice) highestInvoice = invTotal;
                 totalDiscount += invDiscount;
                 salesByDate[inv.date] = (salesByDate[inv.date] || 0) + invTotal;
@@ -1152,8 +1231,15 @@
                     invGrossProfit -= invDiscount;
                     costAmt += invCostAmt; grossProfit += invGrossProfit;
                     profitByDate[inv.date] = (profitByDate[inv.date] || 0) + invGrossProfit;
-                    const netRev = Math.max(1, invTotal);
-                    cashProfit  += invPaid * (invGrossProfit / netRev);
+                    // ✅ FIX: ফেরত মেমোতে নগদ লাভ সঠিকভাবে কমাও
+                    // পুরনো সমস্যা: invTotal<0 হলে Math.max(1,invTotal)=1 এবং invPaid=0
+                    // ফলে cashProfit একটুও কমত না — এখন সরাসরি invGrossProfit যোগ হবে
+                    if (invTotal < 0) {
+                        cashProfit += invGrossProfit; // invGrossProfit negative → cashProfit কমবে
+                    } else {
+                        const netRev = Math.max(1, invTotal);
+                        cashProfit += invPaid * (invGrossProfit / netRev);
+                    }
                 }
             }
 
@@ -1441,7 +1527,294 @@
                 </div>`).join('');
         }
 
-        window.onload = () => loadAnalytics('daily', document.getElementById('btn-daily'));
+        // ─── তুলনামূলক বিশ্লেষণ ─────────────────────────────────────────────
+
+        // শুধু stats হিসাব করো — DOM update করে না
+        async function fetchStats(targetDates) {
+            if (!targetDates || targetDates.length === 0) return null;
+            const targetSet = new Set(targetDates);
+            let allFirebase = {};
+            try {
+                const sortedDates = [...targetDates].sort();
+                const snap = await db.ref('invoices')
+                    .orderByChild('date').startAt(sortedDates[0]).endAt(sortedDates[sortedDates.length - 1])
+                    .once('value');
+                allFirebase = snap.val() || {};
+            } catch(e) {}
+
+            let invoices = {};
+            for (let id in allFirebase) {
+                const inv = allFirebase[id];
+                if (inv.date && targetSet.has(inv.date)) invoices[id] = inv;
+            }
+
+            // Missing dates: Sheet থেকে নাও (max ৩১ দিন)
+            const fbDates = new Set(Object.values(invoices).map(i => i.date).filter(Boolean));
+            const missingDates = targetDates.filter(d => !fbDates.has(d));
+            if (missingDates.length > 0 && missingDates.length <= 31) {
+                const results = await Promise.all(missingDates.map(d => getFromSheet(d)));
+                results.forEach(sd => { if (sd) Object.assign(invoices, sd); });
+            }
+
+            // Inventory
+            let inventoryData = {};
+            try { const s = await db.ref('inventory').once('value'); inventoryData = s.val() || {}; } catch(e) {}
+
+            let total = 0, cash = 0, due = 0, costAmt = 0, grossProfit = 0;
+            let invoiceCount = 0, totalDiscount = 0;
+
+            for (let id in invoices) {
+                const inv = invoices[id];
+                if (!inv || !inv.date) continue;
+                if (inv.source === 'manual_baki' || inv.source === 'payment_baki') continue;
+                const invTotal = parseFloat(inv.total || 0);
+                const invPaid  = parseFloat(inv.paid || inv.cash || 0);
+                const invDue   = parseFloat(inv.due || 0);
+                const invDisc  = parseFloat(inv.discAmt || inv.discount || 0);
+                total += invTotal; cash += invPaid; due += invDue;
+                totalDiscount += invDisc;
+                // ✅ FIX: ফেরত মেমো গণনায় আসবে না
+                if (invTotal >= 0) invoiceCount++;
+                let cp = 0, ip = 0;
+                if (inv.items) {
+                    inv.items.forEach(item => {
+                        const q = parseFloat(item.qty || 0), pr = parseFloat(item.price || 0);
+                        let c = 0, pi = item.id;
+                        if (!pi) { const m2 = (item.name || '').match(/\(([^)]+)\)/); if (m2) pi = m2[1].trim(); }
+                        if (pi && inventoryData[pi]) c = parseFloat(inventoryData[pi].cost || 0);
+                        cp += c > 0 ? c * q : pr * 0.70 * q;
+                        ip += c > 0 ? (pr - c) * q : pr * 0.30 * q;
+                    });
+                    ip -= invDisc;
+                }
+                costAmt += cp; grossProfit += ip;
+            }
+            const marginPct = total > 0 ? Math.round(grossProfit / total * 100) : 0;
+            const markupPct = costAmt > 0 ? Math.round(grossProfit / costAmt * 100) : 0;
+            return { total, cash, due, costAmt, grossProfit, invoiceCount, totalDiscount, marginPct, markupPct };
+        }
+
+        // তুলনার তারিখ পরিসর নির্ধারণ
+        function getComparisonDateRanges(type) {
+            const now = new Date();
+            const fmt = d => formatDate(d);
+            const rangeDays = (start, count) => {
+                const arr = [];
+                for (let i = 0; i < count; i++) {
+                    const d = new Date(start); d.setDate(d.getDate() + i); arr.push(fmt(d));
+                }
+                return arr;
+            };
+            if (type === 'day') {
+                const today = new Date(now);
+                const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+                return { curr: [fmt(today)], prev: [fmt(yesterday)], currLabel: 'আজ', prevLabel: 'গতকাল' };
+            }
+            if (type === 'week') {
+                const tw = new Date(now); tw.setDate(now.getDate() - 6);
+                const lw = new Date(now); lw.setDate(now.getDate() - 13);
+                return { curr: rangeDays(tw, 7), prev: rangeDays(lw, 7), currLabel: 'এই সপ্তাহ', prevLabel: 'গত সপ্তাহ' };
+            }
+            if (type === 'month') {
+                const y = now.getFullYear(), m = now.getMonth();
+                const d = now.getDate();
+                const tm = new Date(y, m, 1);
+                const lm = new Date(y, m - 1, 1);
+                return { curr: rangeDays(tm, d), prev: rangeDays(lm, d), currLabel: 'এই মাস', prevLabel: 'গত মাস' };
+            }
+            if (type === 'year') {
+                const y = now.getFullYear();
+                const start = new Date(y, 0, 1);
+                const dayCount = Math.floor((now - start) / 86400000) + 1;
+                const ly = new Date(y - 1, 0, 1);
+                return { curr: rangeDays(start, dayCount), prev: rangeDays(ly, dayCount), currLabel: 'এই বছর', prevLabel: 'গত বছর' };
+            }
+            return null;
+        }
+
+        async function loadComparison(type) {
+            document.querySelectorAll('.cmp-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('cmpBtn-' + type);
+            if (btn) btn.classList.add('active');
+            const box = document.getElementById('compareResultBox');
+            box.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;">⏳ তুলনা লোড হচ্ছে...</p>';
+            const ranges = getComparisonDateRanges(type);
+            if (!ranges) return;
+            const [currStats, prevStats] = await Promise.all([fetchStats(ranges.curr), fetchStats(ranges.prev)]);
+            renderComparison(currStats, prevStats, ranges.currLabel, ranges.prevLabel);
+        }
+
+        function renderComparison(curr, prev, currLabel, prevLabel) {
+            const box = document.getElementById('compareResultBox');
+            if (!curr && !prev) { box.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">ডেটা পাওয়া যায়নি</p>'; return; }
+            const c = curr || {}, p = prev || {};
+            const arrowHtml = (cv, pv, lowerBetter = false) => {
+                if (!pv && pv !== 0) return '<span style="color:#aaa;">—</span>';
+                const diff = cv - pv;
+                if (diff === 0) return '<span style="color:#aaa;">— একই</span>';
+                const up = diff > 0;
+                const good = lowerBetter ? !up : up;
+                const color = good ? '#43a047' : '#d32f2f';
+                const sym = up ? '▲' : '▼';
+                const pct = pv > 0 ? Math.abs(Math.round(diff / pv * 100)) : 100;
+                return `<span style="color:${color};font-weight:bold;">${sym} ${pct}%</span>`;
+            };
+            const metrics = [
+                { icon: '💰', label: 'মোট বিক্রি',    cv: c.total,        pv: p.total,        unit: '/-' },
+                { icon: '💵', label: 'নগদ আদায়',     cv: c.cash,         pv: p.cash,         unit: '/-' },
+                { icon: '📦', label: 'বিলের সংখ্যা',  cv: c.invoiceCount, pv: p.invoiceCount, unit: 'টি' },
+                { icon: '📈', label: 'মোট লাভ',       cv: c.grossProfit,  pv: p.grossProfit,  unit: '/-' },
+                { icon: '💎', label: 'মার্কআপ হার',   cv: c.markupPct,    pv: p.markupPct,    unit: '%' },
+                { icon: '📊', label: 'মার্জিন হার',    cv: c.marginPct,    pv: p.marginPct,    unit: '%' },
+                { icon: '🏷️', label: 'মোট ছাড়',      cv: c.totalDiscount, pv: p.totalDiscount, unit: '/-', lower: true },
+                { icon: '⏳', label: 'মোট বাকি',      cv: c.due,          pv: p.due,          unit: '/-', lower: true },
+            ];
+            const isDark = document.body.classList.contains('dark-mode');
+            const hdrColor = isDark ? '#8b949e' : '#888';
+            box.innerHTML = `
+                <div style="display:flex;gap:8px;padding:6px 12px;font-size:12px;font-weight:700;color:${hdrColor};margin-bottom:4px;">
+                    <span style="flex:2;"></span>
+                    <span style="flex:1.5;text-align:right;color:#1e88e5;">${currLabel}</span>
+                    <span style="flex:1.5;text-align:right;">${prevLabel}</span>
+                    <span style="flex:1;text-align:right;">পরিবর্তন</span>
+                </div>
+                ${metrics.map(m => `
+                <div class="cmp-row" style="border-left-color:${(m.cv||0) > (m.pv||0) ? (m.lower?'#d32f2f':'#43a047') : (m.cv < m.pv ? (m.lower?'#43a047':'#d32f2f') : '#e0e0e0')}">
+                    <span class="cmp-icon-label">${m.icon} ${m.label}</span>
+                    <span class="cmp-val curr">${Math.round(m.cv||0).toLocaleString()}${m.unit}</span>
+                    <span class="cmp-val prev">${Math.round(m.pv||0).toLocaleString()}${m.unit}</span>
+                    <span class="cmp-change">${arrowHtml(m.cv||0, m.pv||0, m.lower)}</span>
+                </div>`).join('')}`;
+        }
+
+        // ─── সাপ্তাহিক বিক্রয় প্যাটার্ন ────────────────────────────────────
+        let myWeekdayChart, myMonthlyGrowthChart;
+
+        async function loadWeekdayAnalysis() {
+            // গত ৪ সপ্তাহের তারিখ তৈরি করো
+            const now = new Date();
+            const dates = [];
+            for (let i = 0; i < 28; i++) {
+                const d = new Date(now); d.setDate(now.getDate() - i);
+                dates.push(formatDate(d));
+            }
+            const stats = await fetchStats(dates);
+            if (!stats) return;
+
+            // প্রতিটি তারিখের বিক্রি আলাদাভাবে দরকার — পৃথক fetch
+            const dayNames = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+            const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+            const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+
+            // সব তারিখ Firebase থেকে আনো
+            let allInvoices = {};
+            try {
+                const s = [...dates].sort();
+                const snap = await db.ref('invoices').orderByChild('date').startAt(s[0]).endAt(s[s.length-1]).once('value');
+                allInvoices = snap.val() || {};
+            } catch(e) {}
+
+            for (let id in allInvoices) {
+                const inv = allInvoices[id];
+                if (!inv || !inv.date) continue;
+                if (inv.source === 'manual_baki' || inv.source === 'payment_baki') continue;
+                if (!dates.includes(inv.date)) continue;
+                const dow = new Date(inv.date + 'T00:00:00').getDay();
+                dayTotals[dow] += parseFloat(inv.total || 0);
+                dayCounts[dow]++;
+            }
+
+            const ctx = document.getElementById('weekdayChart').getContext('2d');
+            if (myWeekdayChart) myWeekdayChart.destroy();
+            const maxVal = Math.max(...dayTotals);
+            myWeekdayChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dayNames,
+                    datasets: [{
+                        label: 'গড় বিক্রি (৳)',
+                        data: dayTotals.map((t, i) => dayCounts[i] > 0 ? Math.round(t / 4) : 0),
+                        backgroundColor: dayTotals.map(t => t === maxVal ? 'rgba(255,214,0,0.85)' : 'rgba(30,136,229,0.65)'),
+                        borderColor: dayTotals.map(t => t === maxVal ? '#f57f17' : '#1e88e5'),
+                        borderWidth: 1, borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => `বিক্রি: ৳${ctx.raw.toLocaleString()}` } }
+                    },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => '৳' + v.toLocaleString() } } }
+                }
+            });
+        }
+
+        // ─── মাসভিত্তিক গ্রোথ ট্র্যাকার ─────────────────────────────────────
+        async function loadMonthlyGrowth() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const currentMonth = now.getMonth(); // 0-indexed
+            const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+
+            // এই বছরের সব মাসের তারিখ তৈরি
+            const monthStats = [];
+            const labels = [];
+
+            for (let m = 0; m <= currentMonth; m++) {
+                const daysInMonth = new Date(year, m + 1, 0).getDate();
+                const maxDay = m === currentMonth ? now.getDate() : daysInMonth;
+                const dates = [];
+                for (let d = 1; d <= maxDay; d++) {
+                    dates.push(`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+                }
+                labels.push(monthNames[m]);
+                monthStats.push(dates);
+            }
+
+            // সব মাসের stats এক সাথে আনো
+            const results = await Promise.all(monthStats.map(dates => fetchStats(dates)));
+
+            const salesData  = results.map(r => r ? Math.round(r.total) : 0);
+            const profitData = results.map(r => r ? Math.round(r.grossProfit) : 0);
+
+            const ctx = document.getElementById('monthlyGrowthChart').getContext('2d');
+            if (myMonthlyGrowthChart) myMonthlyGrowthChart.destroy();
+            myMonthlyGrowthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'বিক্রি (৳)',
+                            data: salesData,
+                            backgroundColor: 'rgba(30,136,229,0.7)',
+                            borderColor: '#1e88e5', borderWidth: 1, borderRadius: 5, order: 2
+                        },
+                        {
+                            label: 'লাভ (৳)',
+                            data: profitData,
+                            type: 'line',
+                            borderColor: '#43a047',
+                            backgroundColor: 'rgba(67,160,71,0.1)',
+                            borderWidth: 2, fill: true, tension: 0.4, order: 1,
+                            pointBackgroundColor: '#43a047'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => '৳' + v.toLocaleString() } } }
+                }
+            });
+        }
+
+        window.onload = () => {
+            loadAnalytics('daily', document.getElementById('btn-daily'));
+            loadComparison('day');
+            loadWeekdayAnalysis();
+            loadMonthlyGrowth();
+        };
     </script>
 </body>
 
