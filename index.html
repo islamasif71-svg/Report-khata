@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>রিপোর্ট সেন্টার - হাজী মোদাচ্ছের ক্লথ স্টোর</title>
+    <title>রিপোর্ট সেন্টার v64 - হাজী মোদাচ্ছের ক্লথ স্টোর</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -576,6 +576,34 @@
             .cmp-icon-label { font-size: 12px; }
         }
 
+        /* ── Lazy Load Button ── */
+        .lazy-load-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            gap: 10px;
+        }
+        .lazy-load-wrap p {
+            margin: 0;
+            font-size: 13px;
+            color: #aaa;
+        }
+        .btn-lazy-load {
+            padding: 12px 30px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-lazy-load:hover { background: #1565c0; }
+        body.dark-mode .lazy-load-wrap p { color: #555; }
+
         /* ── Print Styles ── */
         @media print {
             body { background: white !important; padding: 0; }
@@ -869,27 +897,55 @@
         <!-- ══ তুলনামূলক বিশ্লেষণ ══ -->
         <div class="compare-section">
             <h3>📊 তুলনামূলক বিশ্লেষণ</h3>
-            <div class="cmp-btn-row">
-                <button class="cmp-btn active" id="cmpBtn-day"   onclick="loadComparison('day')">📅 আজ vs গতকাল</button>
-                <button class="cmp-btn"         id="cmpBtn-week"  onclick="loadComparison('week')">📆 এই সপ্তাহ vs গত সপ্তাহ</button>
-                <button class="cmp-btn"         id="cmpBtn-month" onclick="loadComparison('month')">🗓️ এই মাস vs গত মাস</button>
-                <button class="cmp-btn"         id="cmpBtn-year"  onclick="loadComparison('year')">📈 এই বছর vs গত বছর</button>
+
+            <!-- লোড বাটন -->
+            <div id="compareLoadWrap" class="lazy-load-wrap">
+                <p>আজ vs গতকাল, এই সপ্তাহ vs গত সপ্তাহ ইত্যাদি তুলনা দেখুন</p>
+                <button class="btn-lazy-load" onclick="lazyLoadComparison()">📊 তুলনা লোড করুন</button>
             </div>
-            <div id="compareResultBox">
-                <p style="text-align:center;color:#aaa;padding:20px;">⏳ লোড হচ্ছে...</p>
+
+            <!-- আসল কন্টেন্ট — লোড হওয়ার আগে লুকানো -->
+            <div id="compareContent" style="display:none;">
+                <div class="cmp-btn-row">
+                    <button class="cmp-btn active" id="cmpBtn-day"   onclick="loadComparison('day')">📅 আজ vs গতকাল</button>
+                    <button class="cmp-btn"         id="cmpBtn-week"  onclick="loadComparison('week')">📆 এই সপ্তাহ vs গত সপ্তাহ</button>
+                    <button class="cmp-btn"         id="cmpBtn-month" onclick="loadComparison('month')">🗓️ এই মাস vs গত মাস</button>
+                    <button class="cmp-btn"         id="cmpBtn-year"  onclick="loadComparison('year')">📈 এই বছর vs গত বছর</button>
+                </div>
+                <div id="compareResultBox"></div>
             </div>
         </div>
 
         <!-- ══ সাপ্তাহিক বিক্রয় প্যাটার্ন ══ -->
         <div class="chart-box" style="margin-bottom:30px;">
             <h3 style="margin-top:0;font-size:18px;">📅 সাপ্তাহিক বিক্রয় প্যাটার্ন <span style="font-size:12px;color:#aaa;font-weight:normal;">(গত ৪ সপ্তাহ)</span></h3>
-            <canvas id="weekdayChart" height="100"></canvas>
+
+            <!-- লোড বাটন -->
+            <div id="weekdayLoadWrap" class="lazy-load-wrap">
+                <p>কোন বারে বিক্রি বেশি হয় তা দেখুন</p>
+                <button class="btn-lazy-load" onclick="lazyLoadWeekday()">📅 সাপ্তাহিক চার্ট লোড করুন</button>
+            </div>
+
+            <!-- আসল চার্ট — লোড হওয়ার আগে লুকানো -->
+            <div id="weekdayContent" style="display:none;">
+                <canvas id="weekdayChart" height="100"></canvas>
+            </div>
         </div>
 
         <!-- ══ মাসভিত্তিক গ্রোথ ট্র্যাকার ══ -->
         <div class="chart-box" style="margin-bottom:30px;">
             <h3 style="margin-top:0;font-size:18px;">📈 মাসভিত্তিক গ্রোথ ট্র্যাকার <span style="font-size:12px;color:#aaa;font-weight:normal;">(এই বছর)</span></h3>
-            <canvas id="monthlyGrowthChart" height="100"></canvas>
+
+            <!-- লোড বাটন -->
+            <div id="monthlyLoadWrap" class="lazy-load-wrap">
+                <p>এই বছর মাস অনুযায়ী বিক্রি ও লাভের ধারা দেখুন</p>
+                <button class="btn-lazy-load" onclick="lazyLoadMonthly()">📈 মাসিক চার্ট লোড করুন</button>
+            </div>
+
+            <!-- আসল চার্ট — লোড হওয়ার আগে লুকানো -->
+            <div id="monthlyContent" style="display:none;">
+                <canvas id="monthlyGrowthChart" height="100"></canvas>
+            </div>
         </div>
 
     </div>
@@ -1530,7 +1586,7 @@
         // ─── তুলনামূলক বিশ্লেষণ ─────────────────────────────────────────────
 
         // শুধু stats হিসাব করো — DOM update করে না
-        async function fetchStats(targetDates) {
+        async function fetchStats(targetDates, sharedInventory = null) {
             if (!targetDates || targetDates.length === 0) return null;
             const targetSet = new Set(targetDates);
             let allFirebase = {};
@@ -1556,9 +1612,11 @@
                 results.forEach(sd => { if (sd) Object.assign(invoices, sd); });
             }
 
-            // Inventory
-            let inventoryData = {};
-            try { const s = await db.ref('inventory').once('value'); inventoryData = s.val() || {}; } catch(e) {}
+            // ✅ FIX: বাইরে থেকে inventory দেওয়া থাকলে আবার নামাবে না
+            let inventoryData = sharedInventory || {};
+            if (!sharedInventory) {
+                try { const s = await db.ref('inventory').once('value'); inventoryData = s.val() || {}; } catch(e) {}
+            }
 
             let total = 0, cash = 0, due = 0, costAmt = 0, grossProfit = 0;
             let invoiceCount = 0, totalDiscount = 0;
@@ -1640,7 +1698,10 @@
             box.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;">⏳ তুলনা লোড হচ্ছে...</p>';
             const ranges = getComparisonDateRanges(type);
             if (!ranges) return;
-            const [currStats, prevStats] = await Promise.all([fetchStats(ranges.curr), fetchStats(ranges.prev)]);
+            // ✅ FIX: inventory একবার নামাও, curr ও prev দুজনে ভাগ করে দাও
+            let sharedInv = {};
+            try { const s = await db.ref('inventory').once('value'); sharedInv = s.val() || {}; } catch(e) {}
+            const [currStats, prevStats] = await Promise.all([fetchStats(ranges.curr, sharedInv), fetchStats(ranges.prev, sharedInv)]);
             renderComparison(currStats, prevStats, ranges.currLabel, ranges.prevLabel);
         }
 
@@ -1698,9 +1759,6 @@
                 const d = new Date(now); d.setDate(now.getDate() - i);
                 dates.push(formatDate(d));
             }
-            const stats = await fetchStats(dates);
-            if (!stats) return;
-
             // প্রতিটি তারিখের বিক্রি আলাদাভাবে দরকার — পৃথক fetch
             const dayNames = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
             const dayTotals = [0, 0, 0, 0, 0, 0, 0];
@@ -1771,8 +1829,12 @@
                 monthStats.push(dates);
             }
 
+            // ✅ FIX: inventory একবার নামাও, সব মাসে ভাগ করে দাও
+            let sharedInv = {};
+            try { const s = await db.ref('inventory').once('value'); sharedInv = s.val() || {}; } catch(e) {}
+
             // সব মাসের stats এক সাথে আনো
-            const results = await Promise.all(monthStats.map(dates => fetchStats(dates)));
+            const results = await Promise.all(monthStats.map(dates => fetchStats(dates, sharedInv)));
 
             const salesData  = results.map(r => r ? Math.round(r.total) : 0);
             const profitData = results.map(r => r ? Math.round(r.grossProfit) : 0);
@@ -1809,11 +1871,28 @@
             });
         }
 
-        window.onload = () => {
-            loadAnalytics('daily', document.getElementById('btn-daily'));
+        // ─── অন-ডিমান্ড লোড ফাংশন ───────────────────────────────────────────
+        function lazyLoadComparison() {
+            document.getElementById('compareLoadWrap').style.display = 'none';
+            document.getElementById('compareContent').style.display = 'block';
             loadComparison('day');
+        }
+
+        function lazyLoadWeekday() {
+            document.getElementById('weekdayLoadWrap').style.display = 'none';
+            document.getElementById('weekdayContent').style.display = 'block';
             loadWeekdayAnalysis();
+        }
+
+        function lazyLoadMonthly() {
+            document.getElementById('monthlyLoadWrap').style.display = 'none';
+            document.getElementById('monthlyContent').style.display = 'block';
             loadMonthlyGrowth();
+        }
+
+        window.onload = () => {
+            // ✅ শুধু আজকের রিপোর্ট লোড হবে — বাকিগুলো বাটন ক্লিকে
+            loadAnalytics('daily', document.getElementById('btn-daily'));
         };
     </script>
 </body>
