@@ -8,6 +8,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -962,6 +963,11 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // Auth check — Main Code থেকে login না করলে ঢুকতে পারবে না
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user === null) { window.location.href = 'https://islamasif71-svg.github.io/MAIN-POS/'; }
+        });
         let myChart, myBarChart, myPieChart;
         let lastStats = {}; // trend arrow comparison
         let _reqId = 0; // ✅ FIX: race condition রোধ করতে request counter
