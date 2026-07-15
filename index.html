@@ -1503,7 +1503,7 @@
                     <td>${medal} <b>${c.name}</b>${phone}</td>
                     <td><b style="color:var(--blue);">${Math.round(c.total).toLocaleString()}/-</b><br>
                         <span style="font-size:11px;color:#aaa;">${c.count}টি বিল</span></td>
-                    <td><span class="due-badge ${dueClass}">${c.due > 0 ? Math.round(c.due).toLocaleString()+'/-' : '✅ পরিশোধ'}</span></td>
+                    <td><span class="due-badge ${dueClass}">${c.due > 0 ? Math.round(c.due).toLocaleString()+'/-' : c.due < 0 ? 'জমা '+Math.round(-c.due).toLocaleString()+'/-' : '✅ পরিশোধ'}</span></td>
                 </tr>`;
             }).join('');
         }
